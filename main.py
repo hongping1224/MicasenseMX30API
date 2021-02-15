@@ -26,8 +26,6 @@ def test():
             paths.append(downloadImage(request.values[k]))
 
         capture = cap.Capture.from_filelist(paths)
-        for i in range(5):
-            print(capture.images[0].meta.band_name())
         allignmat = GetAllignmentMatrix(capture)
         s = allignmentMatrixTostring(allignmat)
     except:
@@ -151,7 +149,7 @@ def cal():
 
 def main():
     app.debug = True
-    app.run('0.0.0.0',port = 5000)
+    app.run('0.0.0.0',port = 5001)
     return
 
 
