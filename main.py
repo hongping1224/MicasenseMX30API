@@ -15,7 +15,7 @@ allignmentKey = 'allignmat'
 np.set_printoptions(suppress=True)
 
 
-@app.route('/CalAllignment', methods=['POST'])
+@app.route('/calallignment', methods=['POST'])
 def test():
     paths = []
     try:
