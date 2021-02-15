@@ -74,8 +74,7 @@ def allignImage():
 def download_file(filename):
     file_path = os.path.join(tmpfolder,filename)
     if os.path.isfile(file_path) ==False:
-        return Response("{'message':'file not exist!'}", status=500, mimetype='application/json')
-
+        return Response("{'message':'file not exist!'}", status=410, mimetype='application/json')
     if request.method == 'GET' or request.method == 'POST':
         return_data = io.BytesIO()
         with open(file_path, 'rb') as fo:
@@ -87,7 +86,6 @@ def download_file(filename):
         os.remove(file_path)
         return Response("{'message':'done'}", status=200, mimetype='application/json')
     return Response("{'message':'Method Not Allowed!'}", status=405, mimetype='application/json')
-
 
 def clearCache(paths):
     for p in paths:
