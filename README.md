@@ -1,6 +1,16 @@
 # MicasenseMX30API
 API for Micasense MX30 camera
 
+
+## install dependency:
+
+run install_dependency.bat to install dependency
+
+```
+install_dependency.bat
+```
+
+
 ## 1. 計算matrix ./calallignment
 
 allow method : POST
