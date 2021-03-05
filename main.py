@@ -16,7 +16,32 @@ np.set_printoptions(suppress=True)
 
 
 @app.route('/calallignment', methods=['POST'])
-def test():
+def calallignment():
+    paths = []
+    try:
+        keys = ['1', '2', '3', '4', '5']
+        for k in keys:
+            if k not in request.values:
+                return Response(f"{{'message':'Key \'{k}\' not Found'}}", status=400, mimetype='application/json')
+            paths.append(downloadImage(request.values[k]))
+        iteration = 20
+        if "maxiteration" in request.values:
+            try:
+                iteration = int(request.values["maxiteration"])
+            except:
+                return Response(f"{{'message':'Key maxiteration must be a int'}}", status=400, mimetype='application/json')
+        capture = cap.Capture.from_filelist(paths)
+        allignmat = GetAllignmentMatrix(capture,iteration=iteration)
+        s = allignmentMatrixTostring(allignmat)
+    except:
+        return Response('{"message":"something went wrong"}', status=400, mimetype='application/json')
+    finally:
+        clearCache(paths)
+    return Response(f"{{'{allignmentKey}':{s}}}", status=200, mimetype='application/json')
+
+
+@app.route('/calallignment2', methods=['POST'])
+def calallignment2():
     paths = []
     try:
         keys = ['1', '2', '3', '4', '5']
@@ -26,13 +51,14 @@ def test():
             paths.append(downloadImage(request.values[k]))
 
         capture = cap.Capture.from_filelist(paths)
-        allignmat = GetAllignmentMatrix(capture)
+        allignmat = GetAllignmentMatrix2(capture)
         s = allignmentMatrixTostring(allignmat)
     except:
         return Response('{"message":"something went wrong"}', status=400, mimetype='application/json')
     finally:
         clearCache(paths)
     return Response(f"{{'{allignmentKey}':{s}}}", status=200, mimetype='application/json')
+
 
 
 @app.route('/allignment', methods=['POST'])
