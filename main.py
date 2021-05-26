@@ -1,4 +1,4 @@
-from Allignment import AllignImage, GetAllignmentMatrix, SaveAllignmentMatrix, ReadAllignmentMatrix, allignmentMatrixTostring, loadfromstring
+from Allignment import AllignImage, GetAllignmentMatrix, GetAllignmentMatrix2,SaveAllignmentMatrix, ReadAllignmentMatrix, allignmentMatrixTostring, loadfromstring
 import cv2
 import numpy as np
 import json
