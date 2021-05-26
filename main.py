@@ -37,11 +37,13 @@ def calallignment():
         capture = cap.Capture.from_filelist(paths)
         allignmat = GetAllignmentMatrix(capture,iteration=iteration)
         s = allignmentMatrixTostring(allignmat)
+        res = {}
+        res[allignmentKey]=s
     except:
         return Response('{"message":"something went wrong"}', status=400, mimetype='application/json')
     finally:
         clearCache(paths)
-    return Response(f"{{'{allignmentKey}':{s}}}", status=200, mimetype='application/json')
+    return Response(json.dumps(res), status=200, mimetype='application/json')
 
 
 @app.route('/calallignment2', methods=['POST'])
@@ -58,11 +60,13 @@ def calallignment2():
         capture = cap.Capture.from_filelist(paths)
         allignmat = GetAllignmentMatrix2(capture)
         s = allignmentMatrixTostring(allignmat)
+        res = {}
+        res[allignmentKey]=s
     except:
         return Response('{"message":"something went wrong"}', status=400, mimetype='application/json')
     finally:
         clearCache(paths)
-    return Response(f"{{'{allignmentKey}':{s}}}", status=200, mimetype='application/json')
+    return Response(json.dumps(res), status=200, mimetype='application/json')
 
 
 
@@ -124,7 +128,7 @@ def clearCache(paths):
             os.remove(p)
 
 
-@app.route('/cal')
+@app.route('/cal',methods = ['GET', 'POST'])
 #@cross_origin()
 def cal():
     if "ops" not in request.values:
@@ -175,7 +179,7 @@ def cal():
         return Response(json.dumps(results), status=200, mimetype='application/json')
     except Exception as e:
         print(e)
-        return Response("{'message':'something went wrong!'}", status=400, mimetype='application/json')
+        return Response("{'message':e}", status=400, mimetype='application/json')
     finally:
         clearCache(paths)
 
