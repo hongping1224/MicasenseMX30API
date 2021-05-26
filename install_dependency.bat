@@ -8,7 +8,8 @@ python -m pip install pysolar
 python -m pip install mapboxgl
 python -m pip install pytz
 python -m pip install packaging
-
+python -m pip install tifffile
+python -m pip install imagecodecs
 cd pyexiftool
 python setup.py install --user
 cd ..

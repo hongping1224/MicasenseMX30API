@@ -323,7 +323,9 @@ def find_crop_bounds(capture,registration_transforms,warp_mode=cv2.MOTION_HOMOGR
     """
     image_sizes = [image.size() for image in capture.images]
     lens_distortions = [image.cv2_distortion_coeff() for image in capture.images]
+    print(lens_distortions)
     camera_matrices =  [image.cv2_camera_matrix() for image in capture.images]
+    print(camera_matrices)
 
     bounds = [get_inner_rect(s, a, d, c,warp_mode=warp_mode)[0] for s, a, d, c in zip(image_sizes,registration_transforms, lens_distortions, camera_matrices)]
     edges = [get_inner_rect(s, a, d, c,warp_mode=warp_mode)[1] for s, a, d, c in zip(image_sizes,registration_transforms, lens_distortions, camera_matrices)]
