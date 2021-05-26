@@ -274,10 +274,14 @@ def aligned_capture(capture, warp_matrices, warp_mode, cropped_dimensions, match
                                             (width,height),
                                             flags=interpolation_mode + cv2.WARP_INVERSE_MAP)
         else:
+            print("start")
+            print(warp_matrices)
+            print(warp_matrices[0].dtype)
             im_aligned[:,:,i] = cv2.warpPerspective(img,
                                                 warp_matrices[i],
                                                 (width,height),
                                                 flags=interpolation_mode + cv2.WARP_INVERSE_MAP)
+            print("end")
     (left, top, w, h) = tuple(int(i) for i in cropped_dimensions)
     im_cropped = im_aligned[top:top+h, left:left+w][:]
 

@@ -98,7 +98,8 @@ def allignImage():
             k[i+1] = "/download/"+os.path.basename(tmps)
         f = os.path.basename(filename)
         return Response(json.dumps(k), status=200, mimetype='application/json')
-    except:
+    except Exception as e:
+        print(e)
         return Response("{'message':'something went wrong!'}", status=400, mimetype='application/json')
     finally:
         clearCache(paths)

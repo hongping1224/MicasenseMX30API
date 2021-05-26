@@ -52,8 +52,11 @@ def AllignImage(mat, images):
         img_type = "radiance"
     warp_mode = cv2.MOTION_HOMOGRAPHY
     match_index = 0
+    print("a")
     cropped_dimensions, _ = imageutils.find_crop_bounds(images, mat, warp_mode=warp_mode)
+    print("b")
     im_aligned = imageutils.aligned_capture(images, mat, warp_mode, cropped_dimensions, match_index, img_type=img_type)
+    print("c")
     return im_aligned
 
 def GetAllignmentMatrix(images,iteration = 20):
@@ -91,7 +94,7 @@ def allignmentMatrixTostring(mat):
 def loadfromstring(s):
     rmat = []
     for ss in s:
-        rmat.append(np.array(ss))
+        rmat.append(np.array(ss,dtype=np.float))
     return rmat
 
 def main():
