@@ -91,7 +91,7 @@ def clearCache(paths):
             os.remove(p)
 
 
-@app.route('/cal')
+@app.route('/cal', methods=['POST'])
 def cal():
     if "ops" not in request.values:
         return Response(f"{{'message':'ops not Found'}}", status=400, mimetype='application/json')
@@ -148,8 +148,8 @@ def cal():
     
 
 def main():
-    app.debug = True
-    app.run('0.0.0.0',port = 5001)
+    app.debug = False
+    app.run('0.0.0.0',port = 5500)
     return
 
 
