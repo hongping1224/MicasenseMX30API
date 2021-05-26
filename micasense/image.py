@@ -367,6 +367,8 @@ class Image(object):
         # set up camera matrix for cv2
         cam_mat = np.zeros((3, 3))
         cam_mat[0, 0] = self.focal_length * self.focal_plane_resolution_px_per_mm[0]
+        #print(self.focal_length)
+        #print(self.focal_plane_resolution_px_per_mm)
         cam_mat[1, 1] = self.focal_length * self.focal_plane_resolution_px_per_mm[1]
         cam_mat[2, 2] = 1.0
         cam_mat[0, 2] = center_x

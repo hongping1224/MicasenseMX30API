@@ -51,7 +51,7 @@ def AllignImage(mat, images):
     else:
         img_type = "radiance"
     warp_mode = cv2.MOTION_HOMOGRAPHY
-    match_index = 4
+    match_index = 0
     cropped_dimensions, _ = imageutils.find_crop_bounds(images, mat, warp_mode=warp_mode)
     im_aligned = imageutils.aligned_capture(images, mat, warp_mode, cropped_dimensions, match_index, img_type=img_type)
     return im_aligned
@@ -64,7 +64,7 @@ def GetAllignmentMatrix(images,iteration = 20):
     print("Calculating")
     warp_matrices, alignment_pairs = imageutils.align_capture(images,
                                                           ref_index = match_index,
-                                                          max_iterations = maxiteration,
+                                                          max_iterations = iteration,
                                                           warp_mode = warp_mode,
                                                           pyramid_levels = pyramid_levels)
     print("Done")
@@ -74,7 +74,10 @@ def GetAllignmentMatrix2(images):
     ## Alignment settings
     warp_mode = cv2.MOTION_HOMOGRAPHY # MOTION_HOMOGRAPHY or MOTION_AFFINE. For Altum images only use HOMOGRAPHY
     print("Calculating")
-    warp_matrices = OrbAllignAll(images)
+    im = [] 
+    for img in images.images:
+        im.append(img.undistorted_radiance())
+    warp_matrices = OrbAllignAll(im)
     print("Done")
     return warp_matrices
 
@@ -135,14 +138,15 @@ def OrbAllign(im1,im2):
     h, mask = cv2.findHomography(points1, points2, cv2.RANSAC)
     return h
 
-def OrbAllignAll(capture):
-    imReference = capture.images[0].undistorted_radiance()
+def  OrbAllignAll(images):
+    imReference = images[0]
     # Read reference image
     imReference = imageutils.normalize(imReference, 0, np.max(imReference))*255
     mat = [] 
     mat.append(np.eye(3))
-    for i in range(1,5):
-        im = capture.images[i].undistorted_radiance()
+    for i in range(1,len(images)):
+        print(i)
+        im = images[i]
         im = imageutils.normalize(im, 0, np.max(im))*255
         h = OrbAllign( imReference,im)
         mat.append(h)

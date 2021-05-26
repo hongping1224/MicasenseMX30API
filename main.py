@@ -8,9 +8,12 @@ import io
 from ops import R,B,G,NIR,REDEDGE , RGB,CIR,NDVI,NBI,TGI
 from downloadImage import downloadImage,GenerateRandomName,tmpfolder
 from flask import Flask, request, Response, jsonify, send_file
+from flask_cors import CORS
+
 from numpy.core.records import fromstring
 import requests
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 allignmentKey = 'allignmat'
 np.set_printoptions(suppress=True)
 
@@ -174,7 +177,7 @@ def cal():
     
 
 def main():
-    app.debug = True
+    app.debug = False
     app.run('0.0.0.0',port = 5001)
     return
 
