@@ -8,17 +8,18 @@ import io
 from ops import R,B,G,NIR,REDEDGE , RGB,CIR,NDVI,NBI,TGI
 from downloadImage import downloadImage,GenerateRandomName,tmpfolder
 from flask import Flask, request, Response, jsonify, send_file
-from flask_cors import CORS
+from flask_cors import CORS ,cross_origin
 
 from numpy.core.records import fromstring
 import requests
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app)
 allignmentKey = 'allignmat'
 np.set_printoptions(suppress=True)
 
 
 @app.route('/calallignment', methods=['POST'])
+#@cross_origin()
 def calallignment():
     paths = []
     try:
@@ -44,6 +45,7 @@ def calallignment():
 
 
 @app.route('/calallignment2', methods=['POST'])
+#@cross_origin()
 def calallignment2():
     paths = []
     try:
@@ -65,6 +67,7 @@ def calallignment2():
 
 
 @app.route('/allignment', methods=['POST'])
+#@cross_origin()
 def allignImage():
     paths = []
     a = request.values[allignmentKey]
@@ -98,6 +101,7 @@ def allignImage():
 
 
 @app.route('/download/<filename>',methods = ['DELETE', 'GET', 'POST'])
+#@cross_origin()
 def download_file(filename):
     file_path = os.path.join(tmpfolder,filename)
     if os.path.isfile(file_path) ==False:
@@ -121,6 +125,7 @@ def clearCache(paths):
 
 
 @app.route('/cal')
+#@cross_origin()
 def cal():
     if "ops" not in request.values:
         return Response(f"{{'message':'ops not Found'}}", status=400, mimetype='application/json')
@@ -178,7 +183,7 @@ def cal():
 
 def main():
     app.debug = False
-    app.run('0.0.0.0',port = 5001)
+    app.run('0.0.0.0',port = 5500)
     return
 
 
