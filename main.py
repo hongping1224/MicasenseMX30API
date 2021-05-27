@@ -163,7 +163,7 @@ def cal():
             results["ndvi"] ="/download/"+ os.path.basename(filename.replace(".tif","_ndvi.tif"))
         if "rgb" in ops:
             rgb = RGB(im_allign)*255
-            cv2.imwrite(filename.replace(".tif","_rgb.tif"),rgb)
+            cv2.imwrite(filename.replace(".tif","_rgb.tif"),cv2.normalize(rgb,None,0,255,cv2.NORM_MINMAX,cv2.CV_8UC3))
             results["rgb"] = "/download/"+ os.path.basename(filename.replace(".tif","_rgb.tif"))
         if "nbi" in ops:
             nbi = NBI(im_allign)
@@ -171,7 +171,7 @@ def cal():
             results["nbi"] = "/download/"+ os.path.basename(filename.replace(".tif","_nbi.tif"))
         if "cir" in ops:
             cir = CIR(im_allign)*255
-            cv2.imwrite(filename.replace(".tif","_cir.tif"),cir)
+            cv2.imwrite(filename.replace(".tif","_cir.tif"),cv2.normalize(cir,None,0,255,cv2.NORM_MINMAX,cv2.CV_8UC3))
             results["cir"] = "/download/"+ os.path.basename(filename.replace(".tif","_cir.tif"))
         if "tgi" in ops:
             tgi = TGI(im_allign)
@@ -219,7 +219,7 @@ def caldisplay():
             results["ndvi"] ="/download/"+ os.path.basename(filename.replace(".tif","_ndvi.tif"))
         if "rgb" in ops:
             rgb = RGB(im_allign)*255
-            cv2.imwrite(filename.replace(".tif","_rgb.tif"),rgb)
+            cv2.imwrite(filename.replace(".tif","_rgb.tif"),cv2.normalize(rgb,None,0,255,cv2.NORM_MINMAX,cv2.CV_8UC3))
             results["rgb"] = "/download/"+ os.path.basename(filename.replace(".tif","_rgb.tif"))
         if "nbi" in ops:
             nbi = NBI(im_allign)
@@ -227,7 +227,7 @@ def caldisplay():
             results["nbi"] = "/download/"+ os.path.basename(filename.replace(".tif","_nbi.tif"))
         if "cir" in ops:
             cir = CIR(im_allign)*255
-            cv2.imwrite(filename.replace(".tif","_cir.tif"),cir)
+            cv2.imwrite(filename.replace(".tif","_cir.tif"),cv2.normalize(cir,None,0,255,cv2.NORM_MINMAX,cv2.CV_8UC3))
             results["cir"] = "/download/"+ os.path.basename(filename.replace(".tif","_cir.tif"))
         if "tgi" in ops:
             tgi = TGI(im_allign)
