@@ -30,12 +30,10 @@ def CIR(im):
 
 def RGB(im):
     rgb = im[:,:,[B,G,R]]
-    im_min = np.percentile(rgb[:,:,:].flatten(), 0.5)  # modify these percentiles to adjust contrast
-    im_max = np.percentile(rgb[:,:,:].flatten(), 99.5)
-    print(im_min , im_max)
-    rgb[:,:,B] = imageutils.normalize(rgb[:,:,B], im_min, im_max)
-    rgb[:,:,G] = imageutils.normalize(rgb[:,:,G], im_min, im_max)
-    rgb[:,:,R] = imageutils.normalize(rgb[:,:,R], im_min, im_max)
+    
+    rgb[:,:,B] = imageutils.normalize(rgb[:,:,B])#, im_min, im_max)
+    rgb[:,:,G] = imageutils.normalize(rgb[:,:,G])#, im_min, im_max)
+    rgb[:,:,R] = imageutils.normalize(rgb[:,:,R])#, im_min, im_max)
     return rgb
 
 def rawRGB(im):
