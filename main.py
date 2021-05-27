@@ -159,7 +159,7 @@ def cal():
         results = {}
         if "ndvi" in ops:
             ndvi = NDVI(im_allign)
-            cv2.imwrite(filename.replace(".tif","_ndvi.tif"),ndvi)
+            cv2.imwrite(filename.replace(".tif","_ndvi.tif"),np.float32(ndvi))
             results["ndvi"] ="/download/"+ os.path.basename(filename.replace(".tif","_ndvi.tif"))
         if "rgb" in ops:
             rgb = RGB(im_allign)*255
@@ -167,7 +167,7 @@ def cal():
             results["rgb"] = "/download/"+ os.path.basename(filename.replace(".tif","_rgb.png"))
         if "nbi" in ops:
             nbi = NBI(im_allign)
-            cv2.imwrite(filename.replace(".tif","_nbi.tif"),nbi)
+            cv2.imwrite(filename.replace(".tif","_nbi.tif"),np.float32(nbi))
             results["nbi"] = "/download/"+ os.path.basename(filename.replace(".tif","_nbi.tif"))
         if "cir" in ops:
             cir = CIR(im_allign)*255
@@ -175,7 +175,7 @@ def cal():
             results["cir"] = "/download/"+ os.path.basename(filename.replace(".tif","_cir.png"))
         if "tgi" in ops:
             tgi = TGI(im_allign)
-            cv2.imwrite(filename.replace(".tif","_tgi.tif"),tgi)
+            cv2.imwrite(filename.replace(".tif","_tgi.tif"),np.float32(tgi))
             results["tgi"] = "/download/"+ os.path.basename(filename.replace(".tif","_tgi.tif"))
         return Response(json.dumps(results), status=200, mimetype='application/json')
     except Exception as e:

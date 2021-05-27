@@ -26,8 +26,6 @@ def test_Allignment(i , o):
     rgb_band_indices = [capture.band_names().index('Blue'),capture.band_names().index('Green'),capture.band_names().index('Red')]
     cir_band_indices = [capture.band_names().index('NIR'),capture.band_names().index('Red'),capture.band_names().index('Green')]
     im_display = np.zeros((im_aligned.shape[0],im_aligned.shape[1],im_aligned.shape[2]), dtype=np.float32 )
-    im_min = np.percentile(im_aligned[:,:,rgb_band_indices].flatten(), 0.5)  # modify these percentiles to adjust contrast
-    im_max = np.percentile(im_aligned[:,:,rgb_band_indices].flatten(), 99.5)  # for many images, 0.5 and 99.5 are good values
     for i in rgb_band_indices:
         im_display[:,:,i] =  imageutils.normalize(im_aligned[:,:,i])#, im_min, im_max)
     rgb = im_display[:,:,rgb_band_indices]
