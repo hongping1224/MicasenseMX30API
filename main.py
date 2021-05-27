@@ -185,6 +185,61 @@ def cal():
         clearCache(paths)
 
     
+@app.route('/caldisplay',methods = ['GET', 'POST'])
+#@cross_origin()
+def caldisplay():
+    if "ops" not in request.values:
+        return Response(f"{{'message':'ops not Found'}}", status=400, mimetype='application/json')
+
+    ops = json.loads(request.values['ops'])
+    paths =[]
+    try:
+        keys = ['1', '2', '3', '4', '5']
+        for k in keys:
+            if k not in request.values:
+                return Response(f"{{'message':'Key \'{k}\' not Found'}}", status=400, mimetype='application/json')
+            paths.append(downloadImage(request.values[k]))
+            
+        a1 = cv2.imread(paths[0],cv2.IMREAD_LOAD_GDAL)
+        a2 = cv2.imread(paths[1],cv2.IMREAD_LOAD_GDAL)
+        a3 = cv2.imread(paths[2],cv2.IMREAD_LOAD_GDAL)
+        a4 = cv2.imread(paths[3],cv2.IMREAD_LOAD_GDAL)
+        a5 = cv2.imread(paths[4],cv2.IMREAD_LOAD_GDAL)
+        im_allign = np.zeros((a1.shape[0],a1.shape[1],5), dtype=np.float32 )
+        im_allign[:,:,B] = a1
+        im_allign[:,:,G] = a2
+        im_allign[:,:,R] = a3     
+        im_allign[:,:,NIR] = a4     
+        im_allign[:,:,REDEDGE] = a5     
+        filename = GenerateRandomName()
+        results = {}
+        if "ndvi" in ops:
+            ndvi = NDVI(im_allign)
+            cv2.imwrite(filename.replace(".tif","_ndvi.tif"),cv2.normalize(ndvi,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U))
+            results["ndvi"] ="/download/"+ os.path.basename(filename.replace(".tif","_ndvi.tif"))
+        if "rgb" in ops:
+            rgb = RGB(im_allign)*255
+            cv2.imwrite(filename.replace(".tif","_rgb.png"),rgb)
+            results["rgb"] = "/download/"+ os.path.basename(filename.replace(".tif","_rgb.png"))
+        if "nbi" in ops:
+            nbi = NBI(im_allign)
+            cv2.imwrite(filename.replace(".tif","_nbi.tif"),cv2.normalize(nbi,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U))
+            results["nbi"] = "/download/"+ os.path.basename(filename.replace(".tif","_nbi.tif"))
+        if "cir" in ops:
+            cir = CIR(im_allign)*255
+            cv2.imwrite(filename.replace(".tif","_cir.png"),cir)
+            results["cir"] = "/download/"+ os.path.basename(filename.replace(".tif","_cir.png"))
+        if "tgi" in ops:
+            tgi = TGI(im_allign)
+            cv2.imwrite(filename.replace(".tif","_tgi.tif"),cv2.normalize(tgi,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U))
+            results["tgi"] = "/download/"+ os.path.basename(filename.replace(".tif","_tgi.tif"))
+        return Response(json.dumps(results), status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response("{'message':e}", status=400, mimetype='application/json')
+    finally:
+        clearCache(paths)
+
 
 def main():
     app.debug = False
