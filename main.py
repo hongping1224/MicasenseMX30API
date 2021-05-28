@@ -261,9 +261,8 @@ def NormalizeAndDrawLegend(img,min, max):
 
     img = cv2.rectangle(img, (40, 115), (80, 426), (255,255,255), -1)
     img[120:421, 45:75] = t
-    cv2.putText(img, "{:.1f}".format(max), (100, 130), cv2.FONT_HERSHEY_SIMPLEX,1, (255,255,255), 2, cv2.LINE_AA)
-    cv2.putText(img, "0", (100, 275), cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255), 2, cv2.LINE_AA)
-    cv2.putText(img, "{:.1f}".format(min), (100, 426), cv2.FONT_HERSHEY_SIMPLEX,1, (255,255,255), 2, cv2.LINE_AA)
+    cv2.putText(img, "{:.1f}".format(max), (100, 130), cv2.FONT_HERSHEY_SIMPLEX,1, (0,0,0), 2, cv2.LINE_AA)
+    cv2.putText(img, "{:.1f}".format(min), (100, 426), cv2.FONT_HERSHEY_SIMPLEX,1, (0,0,0), 2, cv2.LINE_AA)
     return img
 
 
