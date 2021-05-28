@@ -239,7 +239,7 @@ def caldisplay():
         return Response(json.dumps(results), status=200, mimetype='application/json')
     except Exception as e:
         print(e)
-        return Response("{'message':e}", status=400, mimetype='application/json')
+        return Response("{"+f"'message':{e}"+"}", status=400, mimetype='application/json')
     finally:
         clearCache(paths)
 
@@ -254,12 +254,16 @@ def NormalizeAndDrawLegend(img,min, max):
     t  = t.astype(np.uint8)
     img[img <min] = min
     img[img >max] = max
+
+    img = cv2.applyColorMap(img, cv2.COLORMAP_JET)
+    t = cv2.applyColorMap(t, cv2.COLORMAP_JET)
+
     img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
-    img = cv2.rectangle(img, (40, 115), (80, 426), (255), -1)
+    img = cv2.rectangle(img, (40, 115), (80, 426), (255,255,255), -1)
     img[120:421, 45:75] = t
-    cv2.putText(img, "{:.1f}".format(max), (100, 130), cv2.FONT_HERSHEY_SIMPLEX,1, (255), 2, cv2.LINE_AA)
-    cv2.putText(img, "0", (100, 275), cv2.FONT_HERSHEY_SIMPLEX,1, (255), 2, cv2.LINE_AA)
-    cv2.putText(img, "{:.1f}".format(min), (100, 426), cv2.FONT_HERSHEY_SIMPLEX,1, (255), 2, cv2.LINE_AA)
+    cv2.putText(img, "{:.1f}".format(max), (100, 130), cv2.FONT_HERSHEY_SIMPLEX,1, (255,255,255), 2, cv2.LINE_AA)
+    cv2.putText(img, "0", (100, 275), cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255), 2, cv2.LINE_AA)
+    cv2.putText(img, "{:.1f}".format(min), (100, 426), cv2.FONT_HERSHEY_SIMPLEX,1, (255,255,255), 2, cv2.LINE_AA)
     return img
 
 
