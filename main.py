@@ -215,7 +215,8 @@ def caldisplay():
         results = {}
         if "ndvi" in ops:
             ndvi = NDVI(im_allign)
-            cv2.imwrite(filename.replace(".tif","_ndvi.tif"),cv2.normalize(ndvi,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U))
+            ndvi = NormalizeAndDrawLegend(ndvi,-1.0,1.0)
+            cv2.imwrite(filename.replace(".tif","_ndvi.tif"),ndvi)
             results["ndvi"] ="/download/"+ os.path.basename(filename.replace(".tif","_ndvi.tif"))
         if "rgb" in ops:
             rgb = RGB(im_allign)*255
@@ -223,7 +224,8 @@ def caldisplay():
             results["rgb"] = "/download/"+ os.path.basename(filename.replace(".tif","_rgb.tif"))
         if "nbi" in ops:
             nbi = NBI(im_allign)
-            cv2.imwrite(filename.replace(".tif","_nbi.tif"),cv2.normalize(nbi,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U))
+            nbi = NormalizeAndDrawLegend(nbi,-1.5,1.5)
+            cv2.imwrite(filename.replace(".tif","_nbi.tif"),nbi)
             results["nbi"] = "/download/"+ os.path.basename(filename.replace(".tif","_nbi.tif"))
         if "cir" in ops:
             cir = CIR(im_allign)*255
@@ -231,7 +233,8 @@ def caldisplay():
             results["cir"] = "/download/"+ os.path.basename(filename.replace(".tif","_cir.tif"))
         if "tgi" in ops:
             tgi = TGI(im_allign)
-            cv2.imwrite(filename.replace(".tif","_tgi.tif"),cv2.normalize(tgi,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U))
+            tgi = NormalizeAndDrawLegend(tgi,-130,10)
+            cv2.imwrite(filename.replace(".tif","_tgi.tif"),tgi)
             results["tgi"] = "/download/"+ os.path.basename(filename.replace(".tif","_tgi.tif"))
         return Response(json.dumps(results), status=200, mimetype='application/json')
     except Exception as e:
@@ -239,6 +242,25 @@ def caldisplay():
         return Response("{'message':e}", status=400, mimetype='application/json')
     finally:
         clearCache(paths)
+
+
+def NormalizeAndDrawLegend(img,min, max):
+    a = np.arange(255,dtype=np.uint8)
+    a = np.flip(a)
+    a = cv2.resize(a,(1,301),interpolation= cv2.INTER_NEAREST)
+    t = np.zeros((301,30))
+    t[:] = a
+    #t = np.transpose(t)
+    t  = t.astype(np.uint8)
+    img[img <min] = min
+    img[img >max] = max
+    cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
+    img = cv2.rectangle(img, (40, 115), (80, 426), (255, 255, 255), -1)
+    img[120:421, 45:75] = t
+    cv2.putText(img, "{:.1f}".format(max), (100, 130), cv2.FONT_HERSHEY_SIMPLEX,1, (255, 255, 255), 2, cv2.LINE_AA)
+    cv2.putText(img, "0", (100, 275), cv2.FONT_HERSHEY_SIMPLEX,1, (255, 255, 255), 2, cv2.LINE_AA)
+    cv2.putText(img, "{:.1f}".format(min), (100, 426), cv2.FONT_HERSHEY_SIMPLEX,1, (255, 255, 255), 2, cv2.LINE_AA)
+    return img
 
 
 def main():
