@@ -255,10 +255,10 @@ def NormalizeAndDrawLegend(img,min, max):
     img[img <min] = min
     img[img >max] = max
 
+    img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8UC1)
     img = cv2.applyColorMap(img, cv2.COLORMAP_JET)
     t = cv2.applyColorMap(t, cv2.COLORMAP_JET)
 
-    img = cv2.normalize(img,None,0,255,cv2.NORM_MINMAX,cv2.CV_8U)
     img = cv2.rectangle(img, (40, 115), (80, 426), (255,255,255), -1)
     img[120:421, 45:75] = t
     cv2.putText(img, "{:.1f}".format(max), (100, 130), cv2.FONT_HERSHEY_SIMPLEX,1, (255,255,255), 2, cv2.LINE_AA)
