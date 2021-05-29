@@ -92,7 +92,7 @@ def allignmentMatrixTostring(mat):
 def loadfromstring(s):
     rmat = []
     for ss in s:
-        rmat.append(np.array(ss))
+        rmat.append(np.array(ss,dtype=np.float))
     return rmat
 
 def main():
