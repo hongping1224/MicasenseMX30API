@@ -12,6 +12,10 @@ def NDVI(im):
     NDVI = (im[:,:,NIR]-im[:,:,R])/(im[:,:,NIR]+im[:,:,R])
     return NDVI
 
+def NDRE(im):
+    NDRE = (im[:,:,NIR]-im[:,:,REDEDGE])/(im[:,:,NIR]+im[:,:,REDEDGE])
+    return NDRE
+
 def NBI(im):
     norm = np.zeros(im.shape)
     im_sum = (im[:,:,0]+im[:,:,1]+im[:,:,2]+im[:,:,3]+im[:,:,4])

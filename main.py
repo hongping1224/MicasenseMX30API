@@ -5,7 +5,7 @@ import json
 import micasense.capture as cap
 import os
 import io
-from ops import R,B,G,NIR,REDEDGE , RGB,CIR,NDVI,NBI,TGI
+from ops import R,B,G,NIR,REDEDGE , RGB,CIR,NDVI,NBI,TGI,NDRE
 from downloadImage import downloadImage,GenerateRandomName,tmpfolder
 from flask import Flask, request, Response, jsonify, send_file
 from flask_cors import CORS ,cross_origin
@@ -179,6 +179,10 @@ def cal():
             ndvi = NDVI(im_allign)
             cv2.imwrite(filename.replace(".tif","_ndvi.tif"),np.float32(ndvi))
             results["ndvi"] ="/download/"+ os.path.basename(filename.replace(".tif","_ndvi.tif"))
+        if "ndre" in ops:
+            ndre = NDRE(im_allign)
+            cv2.imwrite(filename.replace(".tif","_ndre.tif"),np.float32(ndre))
+            results["ndre"] ="/download/"+ os.path.basename(filename.replace(".tif","_ndre.tif"))
         if "rgb" in ops:
             rgb = RGB(im_allign)*255
             cv2.imwrite(filename.replace(".tif","_rgb.tif"),cv2.normalize(rgb,None,0,255,cv2.NORM_MINMAX,cv2.CV_8UC3))
@@ -239,6 +243,11 @@ def caldisplay():
             ndvi = NormalizeAndDrawLegend(ndvi,-1.0,1.0)
             cv2.imwrite(filename.replace(".tif","_ndvi.tif"),ndvi)
             results["ndvi"] ="/download/"+ os.path.basename(filename.replace(".tif","_ndvi.tif"))
+        if "ndre" in ops:
+            ndre = NDRE(im_allign)
+            ndre = NormalizeAndDrawLegend(ndre,-1.0,1.0)
+            cv2.imwrite(filename.replace(".tif","_ndre.tif"),ndre)
+            results["ndre"] ="/download/"+ os.path.basename(filename.replace(".tif","_ndre.tif"))
         if "rgb" in ops:
             rgb = RGB(im_allign)*255
             cv2.imwrite(filename.replace(".tif","_rgb.tif"),cv2.normalize(rgb,None,0,255,cv2.NORM_MINMAX,cv2.CV_8UC3))
