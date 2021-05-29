@@ -27,7 +27,11 @@ def calallignment():
         for k in keys:
             if k not in request.values:
                 return Response(f"{{'message':'Key \'{k}\' not Found'}}", status=400, mimetype='application/json')
-            paths.append(downloadImage(request.values[k]))
+            tmpimg ,success= downloadImage(request.values[k])
+            if success is False:
+                return Response(f"{{'message':'Failed to Download image from url \'{request.values[k]}\'}}", status=400, mimetype='application/json')
+            
+            paths.append(tmpimg)
         iteration = 20
         if "maxiteration" in request.values:
             try:
@@ -39,8 +43,9 @@ def calallignment():
         s = allignmentMatrixTostring(allignmat)
         res = {}
         res[allignmentKey]=s
-    except:
-        return Response('{"message":"something went wrong"}', status=400, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response("{"+f"'message':{str(e)}"+"}", status=400, mimetype='application/json')
     finally:
         clearCache(paths)
     return Response(json.dumps(res), status=200, mimetype='application/json')
@@ -55,15 +60,20 @@ def calallignment2():
         for k in keys:
             if k not in request.values:
                 return Response(f"{{'message':'Key \'{k}\' not Found'}}", status=400, mimetype='application/json')
-            paths.append(downloadImage(request.values[k]))
+            tmpimg ,success= downloadImage(request.values[k])
+            if success is False:
+                return Response(f"{{'message':'Failed to Download image from url \'{request.values[k]}\'}}", status=400, mimetype='application/json')
+            
+            paths.append(tmpimg)
 
         capture = cap.Capture.from_filelist(paths)
         allignmat = GetAllignmentMatrix2(capture)
         s = allignmentMatrixTostring(allignmat)
         res = {}
         res[allignmentKey]=s
-    except:
-        return Response('{"message":"something went wrong"}', status=400, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response("{"+f"'message':{str(e)}"+"}", status=400, mimetype='application/json')
     finally:
         clearCache(paths)
     return Response(json.dumps(res), status=200, mimetype='application/json')
@@ -82,7 +92,11 @@ def allignImage():
         for k in keys:
             if k not in request.values:
                 return Response(f"{{'message':'Key \'{k}\' not Found'}}", status=400, mimetype='application/json')
-            paths.append(downloadImage(request.values[k]))
+            tmpimg ,success= downloadImage(request.values[k])
+            if success is False:
+                return Response(f"{{'message':'Failed to Download image from url \'{request.values[k]}\'}}", status=400, mimetype='application/json')
+            
+            paths.append(tmpimg)
 
         capture = cap.Capture.from_filelist(paths)
 
@@ -100,7 +114,7 @@ def allignImage():
         return Response(json.dumps(k), status=200, mimetype='application/json')
     except Exception as e:
         print(e)
-        return Response("{'message':'something went wrong!'}", status=400, mimetype='application/json')
+        return Response("{"+f"'message':{str(e)}"+"}", status=400, mimetype='application/json')
     finally:
         clearCache(paths)
 
@@ -142,7 +156,11 @@ def cal():
         for k in keys:
             if k not in request.values:
                 return Response(f"{{'message':'Key \'{k}\' not Found'}}", status=400, mimetype='application/json')
-            paths.append(downloadImage(request.values[k]))
+            tmpimg ,success= downloadImage(request.values[k])
+            if success is False:
+                return Response(f"{{'message':'Failed to Download image from url \'{request.values[k]}\'}}", status=400, mimetype='application/json')
+            
+            paths.append(tmpimg)
             
         a1 = cv2.imread(paths[0],cv2.IMREAD_LOAD_GDAL)
         a2 = cv2.imread(paths[1],cv2.IMREAD_LOAD_GDAL)
@@ -180,7 +198,7 @@ def cal():
         return Response(json.dumps(results), status=200, mimetype='application/json')
     except Exception as e:
         print(e)
-        return Response("{'message':e}", status=400, mimetype='application/json')
+        return Response("{"+f"'message':{str(e)}"+"}", status=400, mimetype='application/json')
     finally:
         clearCache(paths)
 
@@ -198,7 +216,10 @@ def caldisplay():
         for k in keys:
             if k not in request.values:
                 return Response(f"{{'message':'Key \'{k}\' not Found'}}", status=400, mimetype='application/json')
-            paths.append(downloadImage(request.values[k]))
+            tmpimg ,success= downloadImage(request.values[k])
+            if success is False:
+                return Response(f"{{'message':'Failed to Download image from url \'{request.values[k]}\'}}", status=400, mimetype='application/json')
+            paths.append(tmpimg)
             
         a1 = cv2.imread(paths[0],cv2.IMREAD_LOAD_GDAL)
         a2 = cv2.imread(paths[1],cv2.IMREAD_LOAD_GDAL)
@@ -239,7 +260,7 @@ def caldisplay():
         return Response(json.dumps(results), status=200, mimetype='application/json')
     except Exception as e:
         print(e)
-        return Response("{"+f"'message':{e}"+"}", status=400, mimetype='application/json')
+        return Response("{"+f"'message':{str(e)}"+"}", status=400, mimetype='application/json')
     finally:
         clearCache(paths)
 

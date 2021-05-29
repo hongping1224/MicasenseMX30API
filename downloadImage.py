@@ -1,3 +1,4 @@
+from operator import truediv
 import shutil
 import requests 
 import uuid
@@ -27,4 +28,5 @@ def downloadImage(image_url):
         print('Image sucessfully Downloaded: ',filename)
     else:
         print('Image Couldn\'t be retreived')
-    return filename
+        return filename , False
+    return filename ,True
