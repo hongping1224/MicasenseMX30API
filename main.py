@@ -1,4 +1,4 @@
-from Allignment import AllignImage, GetAllignmentMatrix, GetAllignmentMatrix2,SaveAllignmentMatrix, ReadAllignmentMatrix, allignmentMatrixTostring, loadfromstring
+from Allignment import AllignImage, GetAllignmentMatrix, GetAllignmentMatrix2, allignmentMatrixTostring, loadfromstring
 import cv2
 import numpy as np
 import json
@@ -8,10 +8,9 @@ import io
 from ops import R,B,G,NIR,REDEDGE , RGB,CIR,NDVI,NBI,TGI,NDRE
 from downloadImage import downloadImage,GenerateRandomName,tmpfolder
 from flask import Flask, request, Response, jsonify, send_file
-from flask_cors import CORS ,cross_origin
+from flask_cors import CORS 
+from OtheCam import GetAllignmentMatrixFromOtherCam,AllignImageOtherCam
 
-from numpy.core.records import fromstring
-import requests
 app = Flask(__name__)
 CORS(app)
 allignmentKey = 'allignmat'
@@ -51,32 +50,53 @@ def calallignment():
     return Response(json.dumps(res), status=200, mimetype='application/json')
 
 
+
 @app.route('/calallignment2', methods=['POST'])
 #@cross_origin()
 def calallignment2():
     paths = []
+    useMeta = 1
+    if "useMeta" in request.values:
+        useMeta = int(request.values["useMeta"])
     try:
-        keys = ['1', '2', '3', '4', '5']
-        for k in keys:
-            if k not in request.values:
-                return Response(f"{{'message':'Key \'{k}\' not Found'}}", status=400, mimetype='application/json')
-            tmpimg ,success= downloadImage(request.values[k])
-            if success is False:
-                return Response(f"{{'message':'Failed to Download image from url \'{request.values[k]}\'}}", status=400, mimetype='application/json')
-            
-            paths.append(tmpimg)
+        if useMeta == 1 :
+            keys = ['1', '2', '3', '4', '5']
+            for k in keys:
+                if k not in request.values:
+                    return Response(f"{{'message':'Key \'{k}\' not Found'}}", status=400, mimetype='application/json')
+                tmpimg ,success= downloadImage(request.values[k])
+                if success is False:
+                    return Response(f"{{'message':'Failed to Download image from url \'{request.values[k]}\'}}", status=400, mimetype='application/json')
+                paths.append(tmpimg)
+            capture = cap.Capture.from_filelist(paths)
+            allignmat = GetAllignmentMatrix2(capture)
+            s = allignmentMatrixTostring(allignmat)
+            res = {}
+            res[allignmentKey]=s
+        else:
+            keys = ['1', '2', '3', '4', '5','6','7','8','9']
+            for k in keys:
+                if k not in request.values:
+                    break
+                tmpimg ,success= downloadImage(request.values[k])
+                if success is False:
+                    return Response(f"{{'message':'Failed to Download image from url \'{request.values[k]}\'}}", status=400, mimetype='application/json')
+                paths.append(tmpimg)
+            if len(paths) ==0:
+                return Response(f"{{'message': 'no valid key'}}", status=400, mimetype='application/json')
 
-        capture = cap.Capture.from_filelist(paths)
-        allignmat = GetAllignmentMatrix2(capture)
-        s = allignmentMatrixTostring(allignmat)
-        res = {}
-        res[allignmentKey]=s
+            allignmat = GetAllignmentMatrixFromOtherCam(paths)
+            s = allignmentMatrixTostring(allignmat)
+            res = {}
+            res[allignmentKey]=s
+            pass
     except Exception as e:
         print(e)
         return Response("{"+f"'message':{str(e)}"+"}", status=400, mimetype='application/json')
     finally:
         clearCache(paths)
     return Response(json.dumps(res), status=200, mimetype='application/json')
+        
 
 
 
@@ -87,24 +107,27 @@ def allignImage():
     a = request.values[allignmentKey]
     a = json.loads(a)
     allignmat = loadfromstring(a)
+    useMeta = 1
+    if "useMeta" in request.values:
+        useMeta = int(request.values["useMeta"])
     try:
-        keys = ['1', '2', '3', '4', '5']
+        keys = []
+        for i in range(len(allignmat)):
+            keys.append(str(i+1))
         for k in keys:
             if k not in request.values:
                 return Response(f"{{'message':'Key \'{k}\' not Found'}}", status=400, mimetype='application/json')
             tmpimg ,success= downloadImage(request.values[k])
             if success is False:
                 return Response(f"{{'message':'Failed to Download image from url \'{request.values[k]}\'}}", status=400, mimetype='application/json')
-            
             paths.append(tmpimg)
-
-        capture = cap.Capture.from_filelist(paths)
-
-        im_allign = AllignImage(allignmat, capture)
-        print(im_allign.shape)
+        if useMeta == 1:
+            capture = cap.Capture.from_filelist(paths)
+            im_allign = AllignImage(allignmat, capture)
+        else:
+            im_allign = AllignImageOtherCam(paths,allignmat)
 
         filename = GenerateRandomName()
-        print(filename)
         k = {}
         for i in range(len(keys)):
             tmps = filename.replace(".tif",f"_{i+1}.tif")
@@ -206,6 +229,71 @@ def cal():
     finally:
         clearCache(paths)
 
+
+@app.route('/calmanual',methods = ['GET', 'POST'])
+#@cross_origin()
+def calmanual():
+    if "ops" not in request.values:
+        return Response(f"{{'message':'ops not Found'}}", status=400, mimetype='application/json')
+
+    ops = json.loads(request.values['ops'])
+    paths =[]
+    try:
+        keys = ['B', 'G', 'R', 'NIR', 'REDEDGE']
+        for k in keys:
+            if k not in request.values:
+                return Response(f"{{'message':'Key \'{k}\' not Found'}}", status=400, mimetype='application/json')
+            tmpimg ,success= downloadImage(request.values[k])
+            if success is False:
+                return Response(f"{{'message':'Failed to Download image from url \'{request.values[k]}\'}}", status=400, mimetype='application/json')
+            
+            paths.append(tmpimg)
+            
+        a1 = cv2.imread(paths[0],cv2.IMREAD_LOAD_GDAL)
+        a2 = cv2.imread(paths[1],cv2.IMREAD_LOAD_GDAL)
+        a3 = cv2.imread(paths[2],cv2.IMREAD_LOAD_GDAL)
+        a4 = cv2.imread(paths[3],cv2.IMREAD_LOAD_GDAL)
+        a5 = cv2.imread(paths[4],cv2.IMREAD_LOAD_GDAL)
+        im_allign = np.zeros((a1.shape[0],a1.shape[1],5), dtype=np.float32 )
+        im_allign[:,:,B] = a1
+        im_allign[:,:,G] = a2
+        im_allign[:,:,R] = a3     
+        im_allign[:,:,NIR] = a4     
+        im_allign[:,:,REDEDGE] = a5     
+        filename = GenerateRandomName()
+        results = {}
+        if "ndvi" in ops:
+            ndvi = NDVI(im_allign)
+            cv2.imwrite(filename.replace(".tif","_ndvi.tif"),np.float32(ndvi))
+            results["ndvi"] ="/download/"+ os.path.basename(filename.replace(".tif","_ndvi.tif"))
+        if "ndre" in ops:
+            ndre = NDRE(im_allign)
+            cv2.imwrite(filename.replace(".tif","_ndre.tif"),np.float32(ndre))
+            results["ndre"] ="/download/"+ os.path.basename(filename.replace(".tif","_ndre.tif"))
+        if "rgb" in ops:
+            rgb = RGB(im_allign)*255
+            cv2.imwrite(filename.replace(".tif","_rgb.tif"),cv2.normalize(rgb,None,0,255,cv2.NORM_MINMAX,cv2.CV_8UC3))
+            results["rgb"] = "/download/"+ os.path.basename(filename.replace(".tif","_rgb.tif"))
+        if "nbi" in ops:
+            nbi = NBI(im_allign)
+            cv2.imwrite(filename.replace(".tif","_nbi.tif"),np.float32(nbi))
+            results["nbi"] = "/download/"+ os.path.basename(filename.replace(".tif","_nbi.tif"))
+        if "cir" in ops:
+            cir = CIR(im_allign)*255
+            cv2.imwrite(filename.replace(".tif","_cir.tif"),cv2.normalize(cir,None,0,255,cv2.NORM_MINMAX,cv2.CV_8UC3))
+            results["cir"] = "/download/"+ os.path.basename(filename.replace(".tif","_cir.tif"))
+        if "tgi" in ops:
+            tgi = TGI(im_allign)
+            cv2.imwrite(filename.replace(".tif","_tgi.tif"),np.float32(tgi))
+            results["tgi"] = "/download/"+ os.path.basename(filename.replace(".tif","_tgi.tif"))
+        return Response(json.dumps(results), status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response("{"+f"'message':{str(e)}"+"}", status=400, mimetype='application/json')
+    finally:
+        clearCache(paths)
+
+
     
 @app.route('/caldisplay',methods = ['GET', 'POST'])
 #@cross_origin()
@@ -272,6 +360,74 @@ def caldisplay():
         return Response("{"+f"'message':{str(e)}"+"}", status=400, mimetype='application/json')
     finally:
         clearCache(paths)
+
+
+@app.route('/caldisplaymanual',methods = ['GET', 'POST'])
+#@cross_origin()
+def caldisplaymanual():
+    if "ops" not in request.values:
+        return Response(f"{{'message':'ops not Found'}}", status=400, mimetype='application/json')
+
+    ops = json.loads(request.values['ops'])
+    paths =[]
+    try:
+        keys = ['B', 'G', 'R', 'NIR', 'REDEDGE']
+        for k in keys:
+            if k not in request.values:
+                return Response(f"{{'message':'Key \'{k}\' not Found'}}", status=400, mimetype='application/json')
+            tmpimg ,success= downloadImage(request.values[k])
+            if success is False:
+                return Response(f"{{'message':'Failed to Download image from url \'{request.values[k]}\'}}", status=400, mimetype='application/json')
+            paths.append(tmpimg)
+            
+        a1 = cv2.imread(paths[0],cv2.IMREAD_LOAD_GDAL)
+        a2 = cv2.imread(paths[1],cv2.IMREAD_LOAD_GDAL)
+        a3 = cv2.imread(paths[2],cv2.IMREAD_LOAD_GDAL)
+        a4 = cv2.imread(paths[3],cv2.IMREAD_LOAD_GDAL)
+        a5 = cv2.imread(paths[4],cv2.IMREAD_LOAD_GDAL)
+        im_allign = np.zeros((a1.shape[0],a1.shape[1],5), dtype=np.float32 )
+        im_allign[:,:,B] = a1
+        im_allign[:,:,G] = a2
+        im_allign[:,:,R] = a3     
+        im_allign[:,:,NIR] = a4     
+        im_allign[:,:,REDEDGE] = a5     
+        filename = GenerateRandomName()
+        results = {}
+        if "ndvi" in ops:
+            ndvi = NDVI(im_allign)
+            ndvi = NormalizeAndDrawLegend(ndvi,-1.0,1.0)
+            cv2.imwrite(filename.replace(".tif","_ndvi.tif"),ndvi)
+            results["ndvi"] ="/download/"+ os.path.basename(filename.replace(".tif","_ndvi.tif"))
+        if "ndre" in ops:
+            ndre = NDRE(im_allign)
+            ndre = NormalizeAndDrawLegend(ndre,-1.0,1.0)
+            cv2.imwrite(filename.replace(".tif","_ndre.tif"),ndre)
+            results["ndre"] ="/download/"+ os.path.basename(filename.replace(".tif","_ndre.tif"))
+        if "rgb" in ops:
+            rgb = RGB(im_allign)*255
+            cv2.imwrite(filename.replace(".tif","_rgb.tif"),cv2.normalize(rgb,None,0,255,cv2.NORM_MINMAX,cv2.CV_8UC3))
+            results["rgb"] = "/download/"+ os.path.basename(filename.replace(".tif","_rgb.tif"))
+        if "nbi" in ops:
+            nbi = NBI(im_allign)
+            nbi = NormalizeAndDrawLegend(nbi,-1.5,1.5)
+            cv2.imwrite(filename.replace(".tif","_nbi.tif"),nbi)
+            results["nbi"] = "/download/"+ os.path.basename(filename.replace(".tif","_nbi.tif"))
+        if "cir" in ops:
+            cir = CIR(im_allign)*255
+            cv2.imwrite(filename.replace(".tif","_cir.tif"),cv2.normalize(cir,None,0,255,cv2.NORM_MINMAX,cv2.CV_8UC3))
+            results["cir"] = "/download/"+ os.path.basename(filename.replace(".tif","_cir.tif"))
+        if "tgi" in ops:
+            tgi = TGI(im_allign)
+            tgi = NormalizeAndDrawLegend(tgi,-130,10)
+            cv2.imwrite(filename.replace(".tif","_tgi.tif"),tgi)
+            results["tgi"] = "/download/"+ os.path.basename(filename.replace(".tif","_tgi.tif"))
+        return Response(json.dumps(results), status=200, mimetype='application/json')
+    except Exception as e:
+        print(e)
+        return Response("{"+f"'message':{str(e)}"+"}", status=400, mimetype='application/json')
+    finally:
+        clearCache(paths)
+
 
 
 def NormalizeAndDrawLegend(img,min, max):

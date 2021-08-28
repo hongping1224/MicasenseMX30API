@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 /tmp
+/othercaminput
+/input
+/input10
+/testData
 # C extensions
 *.so
 

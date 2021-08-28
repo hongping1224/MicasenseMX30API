@@ -142,13 +142,13 @@ def OrbAllign(im1,im2):
 def  OrbAllignAll(images):
     imReference = images[0]
     # Read reference image
-    imReference = imageutils.normalize(imReference, 0, np.max(imReference))*255
+    imReference = np.uint8(imageutils.normalize(imReference, np.min(imReference), np.max(imReference))*255)
     mat = [] 
     mat.append(np.eye(3))
     for i in range(1,len(images)):
         print(i)
         im = images[i]
-        im = imageutils.normalize(im, 0, np.max(im))*255
+        im = np.uint8(imageutils.normalize(im, np.min(im), np.max(im))*255)
         h = OrbAllign( imReference,im)
         mat.append(h)
     return mat
