@@ -45,7 +45,7 @@ def GetAllignmentMatrixFromOtherCam(imgs):
     return allignmat
 
 def main():
-    rootpath = "E:\\Git\\MicasenseMX30API\\othercaminput"
+    rootpath = ".\\test"
     imgs = [os.path.join(rootpath,f) for f in os.listdir(rootpath) if os.path.isfile(os.path.join(rootpath, f))]
     print(imgs)
     im = []
@@ -67,7 +67,6 @@ def main():
         im[i] = cv2.resize(im[i],(maxx,maxy))
 
     allignmat, havePrev = ReadAllignmentMatrix(".")
-    havePrev = False
     if havePrev == False:
         allignmat=OrbAllignAll(im)
         SaveAllignmentMatrix("a_mat_{}.txt",allignmat)
@@ -102,6 +101,8 @@ def main():
     outPath = "output_{}.tiff"
     for i in range(im_aligned.shape[2]):
         cv2.imwrite(outPath.format(i+1),cv2.normalize(im_aligned[:,:,i],None,0.,1.,cv2.NORM_MINMAX,cv2.CV_32F))
+    rgb = RGB(im_aligned)*255
+    cv2.imwrite("RGB.png",cv2.normalize(rgb,None,0,255,cv2.NORM_MINMAX,cv2.CV_8UC3))  
         #cv2.imshow(str(i),cv2.resize(imageutils.normalize(im_aligned[:,:,i]),(int(shape[1]/2),int(shape[0]/2))))
     #cv2.waitKey(0)
 
