@@ -45,7 +45,7 @@ def GetAllignmentMatrixFromOtherCam(imgs):
     return allignmat
 
 def main():
-    rootpath = ".\\test"
+    rootpath = "./test"
     imgs = [os.path.join(rootpath,f) for f in os.listdir(rootpath) if os.path.isfile(os.path.join(rootpath, f))]
     print(imgs)
     im = []

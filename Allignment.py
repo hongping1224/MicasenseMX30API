@@ -121,7 +121,7 @@ def OrbAllign(im1,im2):
     matcher = cv2.DescriptorMatcher_create(cv2.DESCRIPTOR_MATCHER_BRUTEFORCE_HAMMING)
     matches = matcher.match(descriptors1, descriptors2, None)
     # Sort matches by score
-    matches.sort(key=lambda x: x.distance, reverse=False)
+    matches = sorted(matches,key=lambda x: x.distance, reverse=False)
 
     # Remove not so good matches
     numGoodMatches = int(len(matches) * GOOD_MATCH_PERCENT)
