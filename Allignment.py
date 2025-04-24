@@ -3,6 +3,7 @@ import os, glob
 import micasense.capture as cap
 import micasense.imageutils as imageutils
 import cv2
+from ops import RGB,CIR,NDVI,NBI,TGI,NDRE
 
 def ReadAllignmentMatrix(path):
     matrix = []
@@ -23,28 +24,6 @@ def SaveAllignmentMatrix(path, matrix):
        np.savetxt(path.format(i),matrix[i])
     return
 
-
-def AutoAllign():
-    result = glob.glob("./img/*_5.tif")
-    suffix = "_5.tif"
-    files = []
-    for f in result:
-        filename = f.replace(suffix,"_*.tif")
-        files.append(filename)
-    files.sort()  
-    print("Allign")
-    for i in range(len(files)):
-        try:
-            print(i)
-            result = glob.glob(files[len(files)-(i+1)])     
-            capture = cap.Capture.from_filelist(result)
-            mat = GetAllignmentMatrix(capture)
-            SaveAllignmentMatrix("a_mat_{}.txt",mat)
-            break   
-        except :
-            continue
-    return
-
 def AllignImage(mat, images):
     if images.dls_present():
         img_type='reflectance'
@@ -53,7 +32,7 @@ def AllignImage(mat, images):
     warp_mode = cv2.MOTION_HOMOGRAPHY
     match_index = 0
     cropped_dimensions, _ = imageutils.find_crop_bounds(images, mat, warp_mode=warp_mode)
-    np.array([0],dtype=np.float)
+    np.array([0],dtype=float)
     im_aligned = imageutils.aligned_capture(images, mat, warp_mode, cropped_dimensions, match_index, img_type=img_type)
     return im_aligned
 
@@ -95,16 +74,6 @@ def loadfromstring(s):
         rmat.append(np.array(ss,dtype=np.float))
     return rmat
 
-def main():
-    path = "./"
-    confPath = ""
-    mat,a = ReadAllignmentMatrix(path)
-    s = allignmentMatrixTostring(mat)
-    rmat = loadfromstring(s)
-    for i in range(len(mat)):
-        print(np.sum(rmat[i]-mat[i]))
-    #SaveAllignmentMatrix(confPath, mat)
-    return
 
 
 def OrbAllign(im1,im2):
@@ -153,6 +122,54 @@ def  OrbAllignAll(images):
         mat.append(h)
     return mat
 
+
+
+def AutoAllign():
+    result = glob.glob("./input/*_5.tif")
+    suffix = "_5.tif"
+    files = []
+    for f in result:
+        filename = f.replace(suffix,"_*.tif")
+        files.append(filename)
+    files.sort()  
+    print("Allign")
+    for i in range(len(files)):
+        # try:
+            print(i)
+            result = glob.glob(files[len(files)-(i+1)])     
+            print(result)
+            capture = cap.Capture.from_filelist(result)
+            mat = GetAllignmentMatrix(capture)
+            SaveAllignmentMatrix("a_mat_{}.txt",mat)
+            im = AllignImage(mat,capture)
+            rgb_band_indices = [capture.band_names().index('Red'),capture.band_names().index('Green'),capture.band_names().index('Blue')]
+            cv2.imshow("result",im[:,:,rgb_band_indices])
+            cv2.waitKey(0)
+            print("success")
+            break   
+        # except :
+        #     continue
+    return mat
+
+
+def main():
+    import tifffile
+    path = "./"
+    confPath = ""
+    # mat = AutoAllign()
+    mat,success= ReadAllignmentMatrix(path)
+    if success == False:
+        print("read mat failed")
+        return
+    for i in glob.glob("./input/*_5.tif"):
+        imgs =  glob.glob(i.replace("_5.tif","_*.tif"))
+        capture = cap.Capture.from_filelist(imgs)
+        im = AllignImage(mat,capture)
+        cv2.imwrite(os.path.join("output/rgb",os.path.basename(i).replace("_5.tif",".png")),(RGB(im)*255).astype(np.uint8))
+        cv2.imwrite(os.path.join("output/ndvi",os.path.basename(i).replace("_5.tif",".png")),(NDVI(im)*255).astype(np.uint8))
+        tifffile.imwrite(os.path.join("output/",os.path.basename(i).replace(".tif",".tif")),im)
+    #SaveAllignmentMatrix(confPath, mat)
+    return
 
 if __name__== "__main__":
     main()

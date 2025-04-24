@@ -3,6 +3,14 @@ __pycache__/
 *.py[cod]
 *$py.class
 /tmp
+/MicaSenseTestData
+a_mat*.txt
+t1/
+t2/
+test/
+test2/
+testoutput/
+青花菜UAV原始影像/
 
 /input
 /input10

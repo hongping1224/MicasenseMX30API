@@ -194,7 +194,7 @@ def align_capture(capture, ref_index=1, warp_mode=cv2.MOTION_HOMOGRAPHY, max_ite
     best results will be AFFINE and HOMOGRAPHY, at the expense of speed
     '''
     # Match other bands to this reference image (index into capture.images[])
-    ref_img = capture.images[ref_index].undistorted(capture.images[ref_index].radiance()).astype('float32')
+    ref_img = capture.images[ref_index].undistorted(capture.images[ref_index].raw()).astype('float32')
     
     if capture.has_rig_relatives():
         warp_matrices_init = capture.get_warp_matrices(ref_index=ref_index)
@@ -214,7 +214,7 @@ def align_capture(capture, ref_index=1, warp_mode=cv2.MOTION_HOMOGRAPHY, max_ite
                                     'ref_index':ref_index,
                                     'ref_image': ref_img,
                                     'match_index':img.band_index,
-                                    'match_image':img.undistorted(img.radiance()).astype('float32'),
+                                    'match_image':img.undistorted(img.raw()).astype('float32'),
                                     'translations': translations,
                                     'warp_matrix_init': np.array(warp_matrices_init[i], dtype=np.float32),
                                     'debug': debug,
@@ -264,7 +264,7 @@ def aligned_capture(capture, warp_matrices, warp_mode, cropped_dimensions, match
 
     for i in range(0,len(warp_matrices)):
         if img_type == 'reflectance':
-            img = capture.images[i].undistorted_reflectance()
+            img = capture.images[i].raw()
         else:
             img = capture.images[i].undistorted_radiance()
 
@@ -274,14 +274,10 @@ def aligned_capture(capture, warp_matrices, warp_mode, cropped_dimensions, match
                                             (width,height),
                                             flags=interpolation_mode + cv2.WARP_INVERSE_MAP)
         else:
-            print("start")
-            print(warp_matrices)
-            print(warp_matrices[0].dtype)
             im_aligned[:,:,i] = cv2.warpPerspective(img,
                                                 warp_matrices[i],
                                                 (width,height),
                                                 flags=interpolation_mode + cv2.WARP_INVERSE_MAP)
-            print("end")
     (left, top, w, h) = tuple(int(i) for i in cropped_dimensions)
     im_cropped = im_aligned[top:top+h, left:left+w][:]
 
@@ -327,10 +323,11 @@ def find_crop_bounds(capture,registration_transforms,warp_mode=cv2.MOTION_HOMOGR
     """
     image_sizes = [image.size() for image in capture.images]
     lens_distortions = [image.cv2_distortion_coeff() for image in capture.images]
-    print(lens_distortions)
     camera_matrices =  [image.cv2_camera_matrix() for image in capture.images]
-    print(camera_matrices)
-
+    # for s, a, d, c in zip(image_sizes,registration_transforms, lens_distortions, camera_matrices):
+    #     print("-------------------------")
+    #     print(f"test {s},\n{a},\n{d},\n{c}")
+    #     print("-------------------------")
     bounds = [get_inner_rect(s, a, d, c,warp_mode=warp_mode)[0] for s, a, d, c in zip(image_sizes,registration_transforms, lens_distortions, camera_matrices)]
     edges = [get_inner_rect(s, a, d, c,warp_mode=warp_mode)[1] for s, a, d, c in zip(image_sizes,registration_transforms, lens_distortions, camera_matrices)]
     combined_bounds = get_combined_bounds(bounds, image_sizes[0])
