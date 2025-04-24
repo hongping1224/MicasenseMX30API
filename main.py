@@ -454,12 +454,7 @@ def NormalizeAndDrawLegend(img,min, max):
 
 def main():
     app.debug = False
-<<<<<<< HEAD
     app.run('localhost',port = 5500)
-=======
-    app.run('0.0.0.0',port = 5500)
-    
->>>>>>> 8321d1823f2737ed4d89247123159dd077b78fd5
     return
 
 
