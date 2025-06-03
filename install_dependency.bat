@@ -10,6 +10,9 @@ python -m pip install pytz
 python -m pip install packaging
 python -m pip install tifffile
 python -m pip install imagecodecs
+python -m pip install requests
+python -m pip install flask
+python -m pip install flask_cors
 cd pyexiftool
 python setup.py install --user
 cd ..

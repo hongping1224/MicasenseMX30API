@@ -10,12 +10,16 @@ from downloadImage import downloadImage,GenerateRandomName,tmpfolder
 from flask import Flask, request, Response, jsonify, send_file
 from flask_cors import CORS 
 from OtheCam import GetAllignmentMatrixFromOtherCam,AllignImageOtherCam
+import time
 
 app = Flask(__name__)
 CORS(app)
 allignmentKey = 'allignmat'
 np.set_printoptions(suppress=True)
 
+@app.route('/ping', methods=['GET','POST'])
+def ping():
+    return Response("{"+f"'timestamp':{time.time()}"+"}", status=200, mimetype='application/json')
 
 @app.route('/calallignment', methods=['POST'])
 #@cross_origin()
@@ -154,7 +158,7 @@ def download_file(filename):
             return_data.write(fo.read())
         return_data.seek(0)
         return send_file(return_data, mimetype='application/tif',
-                    attachment_filename=filename)
+                    download_name=filename)
     elif request.method =='DELETE':
         os.remove(file_path)
         return Response("{'message':'done'}", status=200, mimetype='application/json')
@@ -454,7 +458,7 @@ def NormalizeAndDrawLegend(img,min, max):
 
 def main():
     app.debug = False
-    app.run('localhost',port = 5500)
+    app.run('0.0.0.0',port = 5500)
     return
 
 

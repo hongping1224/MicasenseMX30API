@@ -5,6 +5,7 @@ import micasense.imageutils as imageutils
 import cv2
 from ops import RGB,CIR,NDVI,NBI,TGI,NDRE
 
+
 def ReadAllignmentMatrix(path):
     matrix = []
     matrix_path = glob.glob(os.path.join(path,'a_mat_*.txt'))
@@ -32,7 +33,7 @@ def AllignImage(mat, images):
     warp_mode = cv2.MOTION_HOMOGRAPHY
     match_index = 0
     cropped_dimensions, _ = imageutils.find_crop_bounds(images, mat, warp_mode=warp_mode)
-    np.array([0],dtype=float)
+    np.array([0],dtype=np.float32)
     im_aligned = imageutils.aligned_capture(images, mat, warp_mode, cropped_dimensions, match_index, img_type=img_type)
     return im_aligned
 
@@ -71,7 +72,7 @@ def allignmentMatrixTostring(mat):
 def loadfromstring(s):
     rmat = []
     for ss in s:
-        rmat.append(np.array(ss,dtype=np.float))
+        rmat.append(np.array(ss,dtype=float))
     return rmat
 
 
